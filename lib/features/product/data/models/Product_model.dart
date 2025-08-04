@@ -46,4 +46,18 @@ class ProductModel {
       price: product.price,
     );
   }
+
+  // ✅ Override == and hashCode for test equality
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is ProductModel &&
+        other.id == id &&
+        other.name == name &&
+        other.price == price;
+  }
+
+  @override
+  int get hashCode => id.hashCode ^ name.hashCode ^ price.hashCode;
 }
