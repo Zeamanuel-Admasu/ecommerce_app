@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../core/usecases/usecase.dart';
 import 'product_event.dart';
 import 'product_state.dart';
 import '../domain/usecases/product_usecases.dart';
@@ -19,7 +20,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
   }) : super(InitialState()) {
     on<LoadAllProductEvent>((event, emit) async {
       emit(LoadingState());
-      final result = await getAllProducts();
+      final result = await getAllProducts(NoParams()); // ✅ use NoParams
       result.fold(
         (failure) => emit(ErrorState(failure.message)),
         (products) => emit(LoadedAllProductState(products)),
@@ -28,7 +29,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
 
     on<GetSingleProductEvent>((event, emit) async {
       emit(LoadingState());
-      final result = await getSingleProduct(event.id);
+      final result = await getSingleProduct(GetSingleProductParams(event.id)); // ✅ use params
       result.fold(
         (failure) => emit(ErrorState(failure.message)),
         (product) => emit(LoadedSingleProductState(product)),
@@ -37,7 +38,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
 
     on<CreateProductEvent>((event, emit) async {
       emit(LoadingState());
-      final result = await createProduct(event.product);
+      final result = await createProduct(CreateProductParams(event.product)); // ✅ use params
       result.fold(
         (failure) => emit(ErrorState(failure.message)),
         (_) => add(LoadAllProductEvent()),
@@ -46,7 +47,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
 
     on<UpdateProductEvent>((event, emit) async {
       emit(LoadingState());
-      final result = await updateProduct(event.product);
+      final result = await updateProduct(UpdateProductParams(event.product)); // ✅ use params
       result.fold(
         (failure) => emit(ErrorState(failure.message)),
         (_) => add(LoadAllProductEvent()),
@@ -55,7 +56,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
 
     on<DeleteProductEvent>((event, emit) async {
       emit(LoadingState());
-      final result = await deleteProduct(event.id);
+      final result = await deleteProduct(DeleteProductParams(event.id)); // ✅ use params
       result.fold(
         (failure) => emit(ErrorState(failure.message)),
         (_) => add(LoadAllProductEvent()),

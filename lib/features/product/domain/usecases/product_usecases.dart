@@ -1,81 +1,99 @@
 import 'package:dartz/dartz.dart';
-import '../../../../core/error/failure.dart';
+import 'package:ecommerce_app/core/error/failure.dart';
+import 'package:ecommerce_app/core/usecases/usecase.dart';
 import '../entities/product.dart';
 import '../repositories/product_repository.dart';
 
-typedef FutureEither<T> = Future<Either<Failure, T>>;
-
-class GetAllProducts {
+class GetAllProducts implements UseCase<List<Product>, NoParams> {
   final ProductRepository repository;
 
   GetAllProducts(this.repository);
 
-  FutureEither<List<Product>> call() async {
-    try {
-      final products = await repository.getAllProducts();
-      return Right(products);
-    } catch (e) {
-      return Left(Failure('Failed to load products: $e'));
-    }
+ @override
+Future<Either<Failure, List<Product>>> call(NoParams params) async {
+  try {
+    final products = await repository.getAllProducts();
+    return Right(products); // ✅ wrap result in Right
+  } catch (e) {
+    return Left(ServerFailure('Failed to load products: $e'));
   }
 }
 
-class GetSingleProduct {
+}
+
+class GetSingleProduct implements UseCase<Product, GetSingleProductParams> {
   final ProductRepository repository;
 
   GetSingleProduct(this.repository);
 
-  FutureEither<Product> call(String id) async {
-    try {
-      final product = await repository.getProductById(id);
-      return Right(product);
-    } catch (e) {
-      return Left(Failure('Failed to load product: $e'));
-    }
+  @override
+Future<Either<Failure, Product>> call(GetSingleProductParams params) async {
+  try {
+    final product = await repository.getProductById(params.id);
+    return Right(product);
+  } catch (e) {
+    return Left(ServerFailure('Failed to load product: $e'));
   }
 }
 
-class CreateProduct {
+}
+
+class CreateProduct implements UseCase<void, CreateProductParams> {
   final ProductRepository repository;
 
   CreateProduct(this.repository);
 
-  FutureEither<void> call(Product product) async {
-    try {
-      await repository.createProduct(product); // ✅ now calling
-      return Right(null);
-    } catch (e) {
-      return Left(Failure('Failed to create product: $e'));
-    }
+  @override
+  Future<Either<Failure, void>> call(CreateProductParams params) async {
+    await repository.createProduct(params.product);
+    return const Right(null);
   }
 }
 
-class UpdateProduct {
+class UpdateProduct implements UseCase<void, UpdateProductParams> {
   final ProductRepository repository;
 
   UpdateProduct(this.repository);
 
-  FutureEither<void> call(Product product) async {
-    try {
-      await repository.updateProduct(product); // ✅ now calling
-      return Right(null);
-    } catch (e) {
-      return Left(Failure('Failed to update product: $e'));
-    }
+  @override
+  Future<Either<Failure, void>> call(UpdateProductParams params) async {
+    await repository.updateProduct(params.product);
+    return const Right(null);
   }
 }
 
-class DeleteProduct {
+class DeleteProduct implements UseCase<void, DeleteProductParams> {
   final ProductRepository repository;
 
   DeleteProduct(this.repository);
 
-  FutureEither<void> call(String id) async {
-    try {
-      await repository.deleteProduct(id); // ✅ now calling
-      return Right(null);
-    } catch (e) {
-      return Left(Failure('Failed to delete product: $e'));
-    }
+  @override
+  Future<Either<Failure, void>> call(DeleteProductParams params) async {
+    await repository.deleteProduct(params.id);
+    return const Right(null);
   }
+}
+
+class GetSingleProductParams {
+  final String id;
+
+  GetSingleProductParams(this.id);
+}
+
+class CreateProductParams {
+  final Product product;
+
+  CreateProductParams(this.product);
+}
+
+class UpdateProductParams {
+  final Product product;
+
+  UpdateProductParams(this.product);
+}
+
+class DeleteProductParams {
+  final String id;
+
+  DeleteProductParams(this.id);
 }
